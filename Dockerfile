@@ -1,5 +1,5 @@
 FROM ubuntu:latest
-MAINTAINER docker@ekito.fr
+MAINTAINER Megha
 
 # Add crontab file in the cron directory
 ADD crontab /etc/cron.d/hello-cron
@@ -14,6 +14,7 @@ RUN touch /var/log/cron.log
 RUN apt-get update
 RUN apt-get -y install cron
 
-
 # Run the command on container startup
 CMD cron && tail -f /var/log/cron.log
+
+EXPOSE 8000
