@@ -1,19 +1,19 @@
-# Dockerfile to create image with cron services
 FROM ubuntu:latest
-MAINTAINER baeldung.com
+MAINTAINER docker@ekito.fr
 
-# Add the script to the Docker Image
-ADD get_date.sh /root/get_date.sh
+# Add crontab file in the cron directory
+ADD crontab /etc/cron.d/hello-cron
 
-# Give execution rights on the cron scripts
-RUN chmod 0644 /root/get_date.sh
+# Give execution rights on the cron job
+RUN chmod 0644 /etc/cron.d/hello-cron
+
+# Create the log file to be able to run tail
+RUN touch /var/log/cron.log
 
 #Install Cron
 RUN apt-get update
 RUN apt-get -y install cron
 
-# Add the cron job
-RUN crontab -l | { cat; echo "* * * * * bash /root/get_date.sh"; } | crontab -
 
 # Run the command on container startup
-CMD cron
+CMD cron && tail -f /var/log/cron.log
