@@ -1,21 +1,19 @@
-# Pulling ubuntu image with a specific tag from the docker hub.
-FROM ubuntu:18.04
+# Dockerfile to create image with cron services
+FROM ubuntu:latest
+MAINTAINER baeldung.com
 
-# Adding maintainer name (Optional).
-MAINTAINER Megha
+# Add the script to the Docker Image
+ADD get_date.sh /root/get_date.sh
 
-# Updating the packages and installing cron and vim editor if you later want to edit your script from inside your container.
-RUN apt-get update \  
-&& apt-get install cron -y && apt-get install vim -y
+# Give execution rights on the cron scripts
+RUN chmod 0644 /root/get_date.sh
 
-# Crontab file copied to cron.d directory.
-COPY ./files/cronjob /etc/cron.d/container_cronjob
+#Install Cron
+RUN apt-get update
+RUN apt-get -y install cron
 
-# Script file copied into container.
-COPY ./files/script.sh /script.sh
+# Add the cron job
+RUN crontab -l | { cat; echo "* * * * * bash /root/get_date.sh"; } | crontab -
 
-# Giving executable permission to script file.
-RUN chmod +x /script.sh
-
-# Running commands for the startup of a container.
-CMD [“/bin/bash”, “-c”, “/script.sh && chmod 644 /etc/cron.d/container_cronjob && cron && tail -f /var/log/cron.log”]
+# Run the command on container startup
+CMD cron
